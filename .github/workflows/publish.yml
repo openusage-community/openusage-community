@@ -29,8 +29,9 @@ jobs:
       RELEASE_TAG: ${{ github.ref_name }}
       # GitHub runners lack FUSE; make linuxdeploy/AppImage tooling extract-and-run.
       APPIMAGE_EXTRACT_AND_RUN: 1
-      # Exposed at job level so steps can skip Apple signing when no cert is configured.
-      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      # Whether Apple code-signing secrets are configured (forks usually have none).
+      # When false the macOS job builds an unsigned app instead of failing.
+      HAS_APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -103,7 +104,7 @@ jobs:
           fi
 
       - name: Import Apple Developer Certificate
-        if: runner.os == 'macOS' && env.APPLE_CERTIFICATE != ''
+        if: runner.os == 'macOS' && env.HAS_APPLE_CERT == 'true'
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -125,13 +126,14 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
+          # Code-signing identity (empty on forks -> unsigned build). The cert
+          # itself is imported into the keychain by the step above when present;
+          # do NOT pass APPLE_CERTIFICATE here, or Tauri tries to import an empty
+          # cert and the build fails.
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         with:
           tagName: ${{ env.RELEASE_TAG }}
           releaseName: ${{ env.RELEASE_TAG }}
