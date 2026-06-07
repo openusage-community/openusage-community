@@ -255,14 +255,7 @@ fn patch_appindicator_file(path: &PathBuf) -> std::io::Result<bool> {
         );
     }
     if !patched.contains("this._openUsageAnchorRetryCount = 0;") {
-        let indicator_init_tail = "        this.connect('notify::visible', () => this._updateMenu());\n\n        this._showIfReady();\n    }\n\n    _onDestroy() {";
-        patched = patched.replacen(
-            indicator_init_tail,
-            &format!(
-                "        this.connect('notify::visible', () => this._updateMenu());\n\n        this._showIfReady();\n{PATCH_INIT_CALL}    }}\n\n    _onDestroy() {{"
-            ),
-            1,
-        );
+        patched = insert_anchor_retry_init_call(&patched);
     }
     if !patched.contains(PATCH_DESTROY_CALL.trim()) {
         patched = patched.replacen(
@@ -326,6 +319,21 @@ fn remove_existing_patch(content: &str) -> String {
     }
 }
 
+fn insert_anchor_retry_init_call(content: &str) -> String {
+    let marker = "this._showIfReady();\n";
+    let Some(marker_start) = content.find(marker) else {
+        return content.to_string();
+    };
+    let insert_at = marker_start + marker.len();
+
+    format!(
+        "{}{}{}",
+        &content[..insert_at],
+        PATCH_INIT_CALL,
+        &content[insert_at..]
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -341,6 +349,18 @@ mod tests {
     fn init_call_retries_until_indicator_identity_is_ready() {
         assert!(PATCH_INIT_CALL.contains("_openUsageAnchorRetrySourceId"));
         assert!(PATCH_INIT_CALL.contains("_openUsageAnchorStartTracking();"));
+    }
+
+    #[test]
+    fn retry_init_call_inserts_after_show_if_ready() {
+        let patched = insert_anchor_retry_init_call(
+            "    _init(indicator) {\n        this._showIfReady();\n    }\n",
+        );
+
+        assert!(patched.contains("this._openUsageAnchorRetryCount = 0;"));
+        assert!(patched.contains(
+            "        this._showIfReady();\n        this._openUsageAnchorStartTracking();"
+        ));
     }
 
     #[test]
