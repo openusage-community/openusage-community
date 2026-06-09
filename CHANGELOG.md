@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.6.26
+
+### Bug Fixes
+- Fix menubar bars tray icon rendering by @symonbaikov
+
+### Chores
+- Add libfuse2 to Linux CI workflows by @symonbaikov
+- Add Linux package build checks to CI by @symonbaikov
+
+---
+
+### Changelog
+
+**Full Changelog**: [v0.6.25...v0.6.26](https://github.com/openusage-community/openusage/compare/v0.6.25...v0.6.26)
+
+- [3c250c0](https://github.com/openusage-community/openusage/commit/3c250c09a02e5e98173956a22b14a3676c3303ec) Fix menubar bars tray icon rendering by @symonbaikov
+- [e565f60](https://github.com/openusage-community/openusage/commit/e565f60af776c832aa8c09b74bfaec03dd72f7a1) Add libfuse2 to Linux CI workflows by @symonbaikov
+- [ed5475f](https://github.com/openusage-community/openusage/commit/ed5475f2006b680ec0b705e3f14d8f0cdf708b18) Add Linux package build checks to CI by @symonbaikov
+
 ## v0.6.25
 
 ### New Features
