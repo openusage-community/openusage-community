@@ -121,12 +121,11 @@
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #555555;
 
-  /* Accent highlight (lime) */
-  --page-accent: #BFFF00;
+  /* Accent highlight (light blue) */
+  --page-accent: #7DD3FC;
 
-  /* Tailwind green/yellow/red-500 derived from page-accent lime
-     #BFFF00 ≈ oklch(0.93 0.27 128) — hue-rotate, keep chroma family */
-  --green-500: oklch(0.93 0.27 128);
+  /* Tailwind green/yellow/red-500 tuned for the dark panel */
+  --green-500: oklch(0.80 0.13 230);
   --yellow-500: oklch(0.90 0.21 85);
   --red-500: oklch(0.70 0.24 29);
 }
